@@ -1,5 +1,6 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 
 import authRoutes from './routes/auth.route.js';
 
@@ -9,6 +10,12 @@ import globalMiddlewareHandler from './middlewares/errorMiddleware.js';
 const app = express();
 
 app.use(express.json());
+app.use(
+  cors({
+    origin: 'http://localhost:3001',
+    credentials: true, // Allow cookies to be sent from the frontend
+  }),
+);
 app.use(cookieParser());
 
 // Routes
@@ -21,4 +28,5 @@ app.all('*', (req, res, next) => {
 
 // Global error handler to catch all errors during the request-response cycle
 app.use(globalMiddlewareHandler);
+
 export default app;

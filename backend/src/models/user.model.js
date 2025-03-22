@@ -27,16 +27,6 @@ const userSchema = new mongoose.Schema(
       minLength: [6, 'Password must be at least 6 characters'],
       trim: true,
     },
-
-    avatarUrl: {
-      type: String,
-      default: '', // Prevents errors if the user hasn't uploaded an avatar
-    },
-
-    avatarPublicId: {
-      type: String,
-      default: '', // Helps in managing the image on Cloudinary
-    },
   },
   {
     timestamps: true,
@@ -61,6 +51,7 @@ userSchema.methods.isPasswordUpdatedAfter = function (JWTTimestamp) {
   }
 
   const passwordChangedTime = parseInt(this.passwordUpdatedAt.getTime() / 1000); // convert to seconds to match JWTTimestamp
+
   // If JWT timestamp is less than password changed timestamp, it means password was changed after token was issued
   return JWTTimestamp < passwordChangedTime;
 };
