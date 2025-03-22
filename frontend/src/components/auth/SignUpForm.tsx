@@ -1,7 +1,8 @@
+import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import axios from 'axios';
 
+import { useAuthStore } from '@/store/authStore';
 import { SignupFormData } from '@/lib/types/auth.type';
 import { signupSchema } from '@/lib/schemas/auth.schema';
 
@@ -49,7 +50,9 @@ const formFields: FormFieldConfig[] = [
 ];
 
 const SignupForm = () => {
-  const data = null; // to be used later for form status
+  // Get state and actions from the auth store
+  const { signup, isLoading, status, clearStatus } = useAuthStore();
+
   const form = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -60,8 +63,15 @@ const SignupForm = () => {
     },
   });
 
-  function onSubmit(values: SignupFormData) {
-    console.log(values);
+  // Clear status when component unmounts
+  useEffect(() => {
+    return () => {
+      clearStatus();
+    };
+  }, [clearStatus]);
+
+  async function onSubmit(values: SignupFormData) {
+    await signup(values);
   }
 
   const renderFormFields = ({ name, type, label, placeholder }: FormFieldConfig, key: string) => (
@@ -77,7 +87,7 @@ const SignupForm = () => {
               placeholder={placeholder}
               {...field}
               type={type}
-              disabled={false}
+              disabled={isLoading}
             />
           </FormControl>
           <FormMessage />
@@ -86,14 +96,14 @@ const SignupForm = () => {
     />
   );
 
-  // renderFormStatus to render the form status based on the response from the loginAction
+  // Render form status based on the status from the auth store
   const renderFormStatus = () => {
-    if (!data || data.message === undefined) return null;
+    if (!status) return null;
 
     return (
       <FormStatus
-        type={data.success ? 'success' : 'error'}
-        message={data.message}
+        type={status.success ? 'success' : 'error'}
+        message={status.message}
       />
     );
   };
@@ -112,8 +122,8 @@ const SignupForm = () => {
 
           <Button
             type="submit"
-            className="w-full"
-            disabled={false}>
+            className="w-full cursor-pointer"
+            disabled={isLoading}>
             Submit
           </Button>
         </form>
