@@ -67,7 +67,7 @@ export const login = catchAsync(async (req, res) => {
   // Check if email and password are provided
   if (!email || !password) {
     res.status(400);
-    throw new HttpError('Please provide both email and password');
+    throw new HttpError('Please provide both email and password', 400);
   }
 
   // Find user by email
@@ -76,7 +76,7 @@ export const login = catchAsync(async (req, res) => {
   // Check if user exists and password is correct
   if (!user || !(await user.isPasswordCorrect(password))) {
     res.status(401);
-    throw new HttpError('Invalid email or password');
+    throw new HttpError('Invalid email or password', 401);
   }
 
   // Generate token and set cookie
